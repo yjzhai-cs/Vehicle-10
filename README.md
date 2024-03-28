@@ -1,5 +1,7 @@
 # Vehicle-10 dataset: Vehicle classification
 
+[![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+
 ### Dataset Overview
 
 The Vehicle-10 dataset foucuses on vehicle classification task. Specifically, we collected 30006 vehicle images from internet and divided them into 10 categories, e.g., bicycle, boat, bus, car, helicopter, minibus, motorcycle, minibus, taxi, train and truck. These images vary in resolution, ranging from 47pix × 36pix  to 4101pix × 2651pix. In the following, we give an example of different vehicle's images. 
@@ -50,9 +52,11 @@ The evaluation code for the Vehicle-10 can be found in the `./src` directory. We
 
 | Model  |[LetNet5](https://ieeexplore.ieee.org/abstract/document/6795724/) | [ResNet9](https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf) | [ResNet18](https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf)    | [ResNet34](https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf)     | [ResNet50](https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf)     | [VGG16](https://arxiv.org/pdf/1409.1556.pdf) | [VGG19](https://arxiv.org/pdf/1409.1556.pdf) | 
 | ------  |----   | ----    | ------- | ------- | ------- | -------    | ------- | 
-| Accuracy| 44.918%  | 66.468%    | 1       |2        |3        |4           | 5       |
+| Training Loss| 1.340  | 0.212    |0.385       |0.349        |0.624        |0.560         | 0.592       |
+| Testing Loss| 1.492  | 1.093    |1.221       |1.297        |1.556        |1.081         | 1.281       |
+| Accuracy| 51.125%  | 70.217%    |72.799%       |74.660%        |67.509%        |78.645%         | 77.951%       |
 
-Traing parameters are epoch=10, batchsize=128 and img_size=224(for LeNet5 and ResNet9, img_size=32). Specifically, you can obtain the results by executing the scripts.
+Traing parameters are epoch=50, batchsize=128 and img_size=224(for LeNet5 and ResNet9, img_size=32). Specifically, you can obtain the results by executing the scripts.
 
 ```
 cd scripts/
@@ -75,8 +79,20 @@ We also evaluated some popular federated algorithms (e.g., FedAvg, FedProx, FedN
 
 You can run the scripts for the quickstart.
 ```
+cd scripts/
+
+sh fedavg.sh
+sh fedprox.sh
+sh fednova.sh
+```
+
+### Citation
+
+If you find Vehicle-10 dataset to be useful in your own research, please consider citing the following paper:
+```
 
 ```
+
 
 ### Acknowledgments
 
