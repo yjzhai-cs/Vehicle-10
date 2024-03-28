@@ -4,8 +4,8 @@
 
 The Vehicle-10 dataset foucuses on vehicle classification task. Specifically, we collected 30006 vehicle images from internet and divided them into 10 categories, e.g., bicycle, boat, bus, car, helicopter, minibus, motorcycle, minibus, taxi, train and truck. These images vary in resolution, ranging from 47pix × 36pix  to 4101pix × 2651pix. In the following, we give an example of different vehicle's images. 
 
-<div style="text-align: center">
-    <img src="./image/Vehicle-10.png" width=650px>
+<div align="center">
+    <img src="./image/Vehicle-10.png" width="750px" align="center">
 </div>
 
 ### Features
