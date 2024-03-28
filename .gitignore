@@ -1,0 +1,11 @@
+# Object file
+*.o
+*__pycache__/
+.ipynb_checkpoints/
+# Ada Library Information
+*.ali
+*.ipynb_checkpoints/
+*__pycache__/
+/data/
+/temp/
+/save_results/
