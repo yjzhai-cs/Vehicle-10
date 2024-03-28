@@ -30,7 +30,7 @@ def train(args):
     net = get_model(args.model)
     net.to(args.device)
 
-    optimizer = torch.optim.SGD(net.parameters(), lr=args.lr)
+    optimizer = torch.optim.SGD(net.parameters(), lr=args.lr, momentum=args.momentum)
     loss_func = nn.CrossEntropyLoss()
     net.train()
     

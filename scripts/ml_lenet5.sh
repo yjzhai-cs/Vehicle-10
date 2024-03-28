@@ -8,7 +8,7 @@ do
     --momentum=0.5 \
     --model=lenet5 \
     --size=32 \
-    --gpu=1 \
+    --gpu=0 \
     --seed=42
 
 done 

@@ -5,10 +5,10 @@ do
     --rounds=50 \
     --local_bs=128 \
     --lr=0.001 \
-    --momentum=0.9 \
-    --model=vgg19 \
-    --size=224 \
-    --gpu=5 \
+    --momentum=0.5 \
+    --model=resnet9 \
+    --size=32 \
+    --gpu=1 \
     --seed=42
 
 done 

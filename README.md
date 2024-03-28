@@ -73,9 +73,12 @@ sh ml_vgg19.sh
 
 We also evaluated some popular federated algorithms (e.g., FedAvg, FedProx, FedNova) on Vehicle-10 dataset in Non-IID setting. Assumed that 100 clients participate in federation learning initiated by the server. In each communication round, the server selects 20% of the clients to participate in training process. We have the following results.
 
-| Algorithm      | [FedAvg](https://proceedings.mlr.press/v54/mcmahan17a/mcmahan17a.pdf) | [FedProx](https://proceedings.mlsys.org/paper_files/paper/2020/file/1f5fe83998a09396ebe6477d9475ba0c-Paper.pdf)    | [FedNova](https://proceedings.neurips.cc/paper_files/paper/2020/file/564127c03caab942e503ee6f810f54fd-Paper.pdf) |
+| Algorithm      | [FedAvg](https://proceedings.mlr.press/v54/mcmahan17a/mcmahan17a.pdf) | [FedProx](https://proceedings.mlsys.org/paper_files/paper/2020/file/1f5fe83998a09396ebe6477d9475ba0c-Paper.pdf)    | [FedNova](https://proceedings.neurips.cc/paper_files/paper/2020/file/564127c03caab942e503ee6f810f54fd-Paper.pdf) | 
 | ------     | ----    | ------- | ------- | 
-| Accuracy   | 0       | 1       |2        |
+| Final Accuracy(ρ=20%)   | 62.18 ± 4.03 | 56.03 ± 6.73      | 48.69 ± 8.47       |
+| Final Accuracy(ρ=30%)   | 69.33 ± 6.04 | 69.67 ± 6.83       |68.65 ± 5.08        |
+
+Note: ρ=20% represents that each client will be randomly assigned 20% of number of categories. We report the mean and standard deviation for the final accuracy over 3 runs.
 
 You can run the scripts for the quickstart.
 ```
