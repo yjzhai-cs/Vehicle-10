@@ -5,7 +5,7 @@
 The Vehicle-10 dataset foucuses on vehicle classification task. Specifically, we collected 30006 vehicle images from internet and divided them into 10 categories, e.g., bicycle, boat, bus, car, helicopter, minibus, motorcycle, minibus, taxi, train and truck. These images vary in resolution, ranging from 47pix × 36pix  to 4101pix × 2651pix. In the following, we give an example of different vehicle's images. 
 
 <div align="center">
-    <img src="./image/Vehicle-10.png" width="750px" align="center">
+    <img src="./image/Vehicle-10.png" width="790px" align="center">
 </div>
 
 ### Features
@@ -46,13 +46,13 @@ After downloading and unzipping the above files, you can get the following direc
 
 ### Evaluation of Machine Learning
 
-The evaluation code for the Vehicle-10 can be found in the `./src` directory. We briefly evaluated ResNet (e.g., ResNet-18, ResNet-34, ResNet-50), LetNet (e.g., LetNet-5, LetNet-10) and VGG (e.g., VGG-16, VGG-19) model architectures on Vehicle-10 dataset. Futhermore, we report the experimental results as following:
+The evaluation code for the Vehicle-10 can be found in the `./src` directory. We briefly evaluated LeNet, ResNet (e.g., ResNet9, ResNet-18, ResNet-34, ResNet-50) and VGG (e.g., VGG-16, VGG-19) model architectures on Vehicle-10 dataset. Futhermore, we report the experimental results as following:
 
-| Model      | [LeNet5](https://ieeexplore.ieee.org/abstract/document/6795724/) | [ResNet18](https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf)    | [ResNet34](https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf)     | [ResNet50](https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf)     | [VGG16](https://arxiv.org/pdf/1409.1556.pdf) | [VGG19](https://arxiv.org/pdf/1409.1556.pdf) | 
-| ------     | ----    | ------- | ------- | ------- | -------    | ------- | 
-| Accuracy   | 0       | 1       |2        |3        |4           | 5       |
+| Model  |[LetNet5](https://ieeexplore.ieee.org/abstract/document/6795724/) | [ResNet9](https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf) | [ResNet18](https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf)    | [ResNet34](https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf)     | [ResNet50](https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf)     | [VGG16](https://arxiv.org/pdf/1409.1556.pdf) | [VGG19](https://arxiv.org/pdf/1409.1556.pdf) | 
+| ------  |----   | ----    | ------- | ------- | ------- | -------    | ------- | 
+| Accuracy| 44.918%  | 66.468%    | 1       |2        |3        |4           | 5       |
 
-Traing parameters are epoch=50, batchsize=128 and img_size=224(for LeNet5, img_size=32). Specifically, you can obtain the results by executing the scripts.
+Traing parameters are epoch=10, batchsize=128 and img_size=224(for LeNet5 and ResNet9, img_size=32). Specifically, you can obtain the results by executing the scripts.
 
 ```
 cd scripts/
