@@ -61,11 +61,13 @@ Traing parameters are epoch=50, batchsize=128 and img_size=224(for LeNet5 and Re
 ```
 cd scripts/
 
-sh ml_lenet5.sh
-sh ml_resnet18.sh
-sh ml_resnet34.sh
-sh ml_vgg16.sh
-sh ml_vgg19.sh
+sh lenet5.sh
+sh resnet9.sh
+sh resnet18.sh
+sh resnet34.sh
+sh resnet50.sh
+sh vgg16.sh
+sh vgg19.sh
 ```
 
 

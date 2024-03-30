@@ -5,6 +5,7 @@ from typing import Optional, Callable
 from PIL import Image
 
 class Vehicle10Dataset(Dataset): 
+    """Vehicle10Dataset for Machine Learning."""
     def __init__(self, 
                 root: str,
                 split: str = 'train',
@@ -45,3 +46,43 @@ class Vehicle10Dataset(Dataset):
 
     def __len__(self):
         return len(self.meta_info['path'])
+    
+
+class Vehicle10_truncated(Dataset):
+    """Vehicle10_truncated for Federated Learning."""
+    def __init__(self, 
+                 root, 
+                 dataidxs=None, 
+                 train=True, 
+                 transform=None, 
+                 target_transform=None, 
+                 download=False):
+
+        self.root = root
+        self.dataidxs = dataidxs
+        self.train = train
+        self.transform = transform
+        self.target_transform = target_transform
+        self.download = download
+
+        self.data, self.target = self.__build_truncated_dataset__()
+
+    def __build_truncated_dataset__(self,):
+        split = 'train' if self.train else 'test'
+
+        vehicle10_dataobj = Vehicle10Dataset(root=self.root, split=split, transform=self.transform, target_transform=self.target_transform)
+        data, target = [], []
+        if self.dataidxs is None:
+            self.dataidxs = [i for i in range(len(vehicle10_dataobj))]
+        
+        for idx in self.dataidxs:
+            data.append(vehicle10_dataobj[idx][0])
+            target.append(vehicle10_dataobj[idx][1])
+
+        return data, target
+
+    def __getitem__(self, index):
+        return self.data[index], self.target[index]
+
+    def __len__(self,):
+        return len(self.data)
