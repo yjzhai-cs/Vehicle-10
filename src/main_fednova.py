@@ -1,7 +1,7 @@
 
 import torch
 from utils.options import args_parser
-from server.fednova import FedNovaClient
+from server.fednova import FedNovaServer
 
 
 if __name__ == '__main__':
@@ -11,7 +11,7 @@ if __name__ == '__main__':
     args.device = torch.device('cuda:{}'.format(args.gpu) if torch.cuda.is_available() else 'cpu')
     torch.cuda.set_device(args.gpu) ## Setting cuda on GPU 
 
-    sever = FedNovaClient(
+    sever = FedNovaServer(
         device = args.device,
         model = args.model,
         dataset = args.dataset,
