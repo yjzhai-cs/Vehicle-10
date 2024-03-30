@@ -1,4 +1,5 @@
 
+
 import numpy as np
 import copy
 import gc 
@@ -8,12 +9,11 @@ from collections import OrderedDict
 from torch import nn
 from dataset.partition import partition_data, get_dataloader
 from models.model import get_model
-from client.fedavg import FedAvgClient
-from aggregate.fedavg import FedAvg
+from client.fednova import FedNovaClient
 from utils.util import eval_test
 
-class FedAvgServer(object):
-    def __init__(self, 
+class FedNovaServer(object):
+    def __init__(self,
                  device: torch.device, 
                  model: str = 'resnet9',
                  dataset: str = 'vehicle10',
@@ -30,7 +30,7 @@ class FedAvgServer(object):
                  frac: float = 0.2,
                  print_freq: int = 10,
                  ) -> None:
-        
+
         self.device = device
         self.model = model
         self.dataset = dataset
@@ -56,21 +56,19 @@ class FedAvgServer(object):
 
         self.__init_clients__()
 
-
     def __partition_data__(self,):
-
+        
         self.X_train, self.y_train, self.X_test, self.y_test, self.net_dataidx_map, self.net_dataidx_map_test, \
         self.traindata_cls_counts, self.testdata_cls_counts = partition_data(self.dataset, 
         self.datadir, self.partition, self.num_users, local_view=self.local_view)
 
         self.train_dl_global, self.test_dl_global, self.train_ds_global, self.test_ds_global = get_dataloader(self.dataset,
-                                                                                   self.datadir,
-                                                                                   self.batch_size,
-                                                                                   32)
+                                                                                        self.datadir,
+                                                                                        self.batch_size,
+                                                                                        32)
 
         print("len train_ds_global:", len(self.train_ds_global))
         print("len test_ds_global:", len(self.test_ds_global))
-
 
     def __build_model__(self,):
         print(f'MODEL: {self.model}, Dataset: {self.dataset}')
@@ -78,7 +76,7 @@ class FedAvgServer(object):
         self.users_model = []
 
         for net_i in range(-1, self.num_users):
-            
+           
             net = get_model(self.model)
             net.to(self.device)
 
@@ -91,7 +89,6 @@ class FedAvgServer(object):
                 self.users_model[net_i].load_state_dict(self.initial_state_dict)
 
         print(self.net_glob)
-
 
     def __init_clients__(self,):
         self.clients = []
@@ -108,14 +105,15 @@ class FedAvgServer(object):
 
             train_dl_local, test_dl_local, train_ds_local, test_ds_local = get_dataloader(self.dataset, 
                                                                             self.datadir, self.local_bs, 32, 
-                                                                            dataidxs,
+                                                                            dataidxs, 
                                                                             dataidxs_test=dataidxs_test)
             
-            self.clients.append(FedAvgClient(idx, copy.deepcopy(self.users_model[idx]), self.local_bs, self.local_ep, 
+            self.clients.append(FedNovaClient(idx, copy.deepcopy(self.users_model[idx]), self.local_bs, self.local_ep, 
                     self.lr, self.momentum, self.device, train_dl_local, test_dl_local))
 
 
     def start(self,):
+
         loss_train = []
         global_acc = []
 
@@ -130,7 +128,6 @@ class FedAvgServer(object):
 
         self.w_glob = copy.deepcopy(self.initial_state_dict)
         print_flag = False
-
         for iteration in range(self.rounds):
                 
             m = max(int(self.frac * self.num_users), 1)
@@ -139,24 +136,51 @@ class FedAvgServer(object):
             print(f'###### ROUND {iteration+1} ######')
             print(f'Clients {idxs_users}')
                 
+            a_list = []
+            d_list = []
+            n_list = []
             for idx in idxs_users:
                 
                 self.clients[idx].set_state_dict(copy.deepcopy(self.w_glob)) 
                     
-                loss = self.clients[idx].train(is_print=False)
+                loss, a_i, d_i = self.clients[idx].train(copy.deepcopy(self.w_glob), is_print=False)
                                 
-                loss_locals.append(copy.deepcopy(loss))       
+                a_list.append(a_i)
+                d_list.append(d_i)
+                n_i = len(self.net_dataidx_map[idx])
+                n_list.append(n_i)
+                
+                loss_locals.append(copy.deepcopy(loss))        
             
-            total_data_points = sum([len(self.net_dataidx_map[r]) for r in idxs_users])
-            fed_avg_freqs = [len(self.net_dataidx_map[r]) / total_data_points for r in idxs_users]
+            total_n = sum(n_list)
             
-            w_locals = []
-            for idx in idxs_users:
-                w_locals.append(copy.deepcopy(self.clients[idx].get_state_dict()))
+            d_total_round = copy.deepcopy(self.initial_state_dict)
+            for key in d_total_round:
+                d_total_round[key] = torch.zeros_like(self.initial_state_dict[key])
+                
+            for i in range(len(idxs_users)):
+                d_para = d_list[i]
+                for key in d_para:
+                    d_total_round[key] = d_total_round[key].to(self.device) + d_para[key].to(self.device) * n_list[i] / total_n
+            
+            # update global model
+            coeff = 0.0
+            for i in range(len(idxs_users)):
+                coeff = coeff + a_list[i] * n_list[i]/total_n
 
-            ww = FedAvg(w_locals, weight_avg=fed_avg_freqs)
-            self.w_glob = copy.deepcopy(ww)
-            self.net_glob.load_state_dict(copy.deepcopy(ww))
+            updated_model = copy.deepcopy(self.w_glob)
+            for key in updated_model:
+                d_total_round[key].to(self.device)
+                updated_model[key].to(self.device)
+                if updated_model[key].type() == 'torch.LongTensor':
+                    updated_model[key] -= (coeff * d_total_round[key]).type(torch.LongTensor)
+                elif updated_model[key].type() == 'torch.cuda.LongTensor':
+                    updated_model[key] -= (coeff * d_total_round[key]).type(torch.cuda.LongTensor)
+                else:
+                    updated_model[key] = updated_model[key].to(self.device) - (coeff * d_total_round[key]).to(self.device)
+            
+            self.w_glob = copy.deepcopy(updated_model)
+            self.net_glob.load_state_dict(copy.deepcopy(self.w_glob))
             _, acc = eval_test(self.net_glob, self.test_dl_global, self.device)
             if acc > best_glob_acc:
                 best_glob_acc = acc 
@@ -210,8 +234,6 @@ class FedAvgServer(object):
             
             ## calling garbage collector 
             gc.collect()
-
-        print(f'Best Clients AVG Acc: {np.mean(clients_best_acc)}')
 
 
     def eval(self,):

@@ -8,12 +8,12 @@ from collections import OrderedDict
 from torch import nn
 from dataset.partition import partition_data, get_dataloader
 from models.model import get_model
-from client.fedavg import FedAvgClient
+from client.fedprox import FedProxClient
 from aggregate.fedavg import FedAvg
 from utils.util import eval_test
 
-class FedAvgServer(object):
-    def __init__(self, 
+class FedProxServer(object):
+    def __init__(self,
                  device: torch.device, 
                  model: str = 'resnet9',
                  dataset: str = 'vehicle10',
@@ -29,8 +29,9 @@ class FedAvgServer(object):
                  rounds: int = 100,
                  frac: float = 0.2,
                  print_freq: int = 10,
+                 mu: float = 0.001,
                  ) -> None:
-        
+    
         self.device = device
         self.model = model
         self.dataset = dataset
@@ -46,6 +47,7 @@ class FedAvgServer(object):
         self.rounds = rounds
         self.frac = frac
         self.print_freq = print_freq
+        self.mu = mu
 
         self.net_glob: nn.Module = None
         self.w_glob: OrderedDict[str, torch.Tensor] = None
@@ -64,9 +66,9 @@ class FedAvgServer(object):
         self.datadir, self.partition, self.num_users, local_view=self.local_view)
 
         self.train_dl_global, self.test_dl_global, self.train_ds_global, self.test_ds_global = get_dataloader(self.dataset,
-                                                                                   self.datadir,
-                                                                                   self.batch_size,
-                                                                                   32)
+                                                                                    self.datadir,
+                                                                                    self.batch_size,
+                                                                                    32)
 
         print("len train_ds_global:", len(self.train_ds_global))
         print("len test_ds_global:", len(self.test_ds_global))
@@ -78,7 +80,7 @@ class FedAvgServer(object):
         self.users_model = []
 
         for net_i in range(-1, self.num_users):
-            
+
             net = get_model(self.model)
             net.to(self.device)
 
@@ -111,8 +113,8 @@ class FedAvgServer(object):
                                                                             dataidxs,
                                                                             dataidxs_test=dataidxs_test)
             
-            self.clients.append(FedAvgClient(idx, copy.deepcopy(self.users_model[idx]), self.local_bs, self.local_ep, 
-                    self.lr, self.momentum, self.device, train_dl_local, test_dl_local))
+            self.clients.append(FedProxClient(idx, copy.deepcopy(self.users_model[idx]), self.local_bs, self.local_ep, 
+                    self.lr, self.momentum, self.device, train_dl_local, test_dl_local, self.mu))
 
 
     def start(self,):
@@ -145,8 +147,8 @@ class FedAvgServer(object):
                     
                 loss = self.clients[idx].train(is_print=False)
                                 
-                loss_locals.append(copy.deepcopy(loss))       
-            
+                loss_locals.append(copy.deepcopy(loss))
+                                     
             total_data_points = sum([len(self.net_dataidx_map[r]) for r in idxs_users])
             fed_avg_freqs = [len(self.net_dataidx_map[r]) / total_data_points for r in idxs_users]
             
@@ -244,4 +246,4 @@ class FedAvgServer(object):
         _, acc = eval_test(self.net_glob, self.test_dl_global, self.device)
 
         template = "Global Model Test Acc: {:.3f}"
-        print(template.format(acc))
+        print(template.format(acc))     
